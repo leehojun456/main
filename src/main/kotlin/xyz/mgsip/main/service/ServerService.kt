@@ -14,6 +14,7 @@ import xyz.mgsip.main.model.Server
 interface ServerService {
     abstract fun getServerList(): List<Server>
     abstract fun putServer(multipartFile:MultipartFile?,server: Server): ApiResult
+    abstract fun deleteServer(serverId: Int)
 
 }
 
@@ -46,7 +47,11 @@ class ServerServiceImpl(private val serverDao: ServerDao,
         {
             serverDao.updateServer(server)
             return ApiResult(message = "서버 정보 업데이트가 완료되었습니다.",
-                HttpStatus.CREATED)
+                HttpStatus.OK)
         }
+    }
+
+    override fun deleteServer(serverId: Int) {
+        serverDao.deleteServer(serverId)
     }
 }

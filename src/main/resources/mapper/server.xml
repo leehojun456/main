@@ -10,9 +10,13 @@
         SELECT * FROM mgsip_servers
     </select>
 
-    <insert id="updateServer">
+    <insert id="addServer">
         INSERT INTO mgsip_servers (server_name,server_ip,server_port,server_game,preview_image ,check_db)
         VALUES (#{serverName},#{serverIp},#{serverPort},#{serverGame},#{previewImage},#{checkDb})
     </insert>
+
+    <delete id="deleteServer">
+        DELETE FROM mgsip_servers WHERE server_id = #{serverId}
+    </delete>
 
 </mapper>

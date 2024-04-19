@@ -1,7 +1,7 @@
 package xyz.mgsip.main.model
 
 data class Server(
-    var serverId:Int,
+    var serverId:Int? = null,
     var serverName:String,
     var serverIp:String,
     var serverPort:Int,
