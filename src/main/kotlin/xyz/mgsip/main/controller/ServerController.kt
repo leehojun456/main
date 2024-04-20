@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import xyz.mgsip.main.model.ApiResult
+import xyz.mgsip.main.model.Database
 import xyz.mgsip.main.model.Server
 import xyz.mgsip.main.service.ServerService
 import java.lang.module.ModuleDescriptor.Requires
@@ -44,5 +45,12 @@ class ServerController(private val serverService: ServerService) {
         serverService.deleteServer(serverId)
 
         return ResponseEntity("삭제가 완료되었습니다.",HttpStatus.OK)
+    }
+
+    @GetMapping
+    fun serverConnectStatus(@RequestParam serverIp:String, serverPort:Int):ResponseEntity<Boolean>
+    {
+        val result:Boolean = serverService.serverConnectStatus(serverIp,serverPort)
+        return ResponseEntity(result,HttpStatus.OK)
     }
 }
