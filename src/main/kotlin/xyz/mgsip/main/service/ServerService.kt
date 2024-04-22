@@ -1,21 +1,18 @@
 package xyz.mgsip.main.service
 
-import com.ibasco.agql.core.util.ConnectOptions
 import com.ibasco.agql.core.util.GeneralOptions
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryClient
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions
-import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoResponse
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import xyz.mgsip.main.dao.ServerDao
 import xyz.mgsip.main.model.ApiResult
-import xyz.mgsip.main.model.Database
 import xyz.mgsip.main.model.Server
 import xyz.mgsip.main.util.FileUploadUtil
 import java.net.InetSocketAddress
-import java.sql.DriverManager
 
 
 interface ServerService {
@@ -26,14 +23,22 @@ interface ServerService {
 
 }
 
-
 @Service
 class ServerServiceImpl(private val serverDao: ServerDao,
                          private val fileUploadUtil: FileUploadUtil):ServerService{
 
+    private val logger = KotlinLogging.logger {}
+
     override fun getServerList(): List<Server> {
 
         val servers:List<Server> = serverDao.getServerList()
+        for ((index, server) in servers.withIndex())
+        {
+
+            val objectKey:String? = server.previewImage
+            server.previewImage = fileUploadUtil.getFile(objectKey)
+            logger.info { server.previewImage }
+        }
         return servers
     }
 
@@ -42,12 +47,15 @@ class ServerServiceImpl(private val serverDao: ServerDao,
 
         if(server.serverId == null)
         {
+            serverDao.addServer(server)
             if(multipartFile != null)
             {
-                 fileUploadUtil.putGamePreviewImage(multipartFile)
+                val fileExtension = multipartFile.originalFilename?.substringAfterLast(".")
+                val objectKey = "server/gamepreviewimage_${server.serverId}.$fileExtension"
+                server.previewImage = objectKey
+                serverDao.updateServerImage(server)
+                fileUploadUtil.putFile(multipartFile,objectKey)
             }
-            serverDao.addServer(server)
-
             return ApiResult(message = "서버 정보 추가가 완료되었습니다.",
                 HttpStatus.CREATED)
         }
@@ -60,6 +68,16 @@ class ServerServiceImpl(private val serverDao: ServerDao,
     }
 
     override fun deleteServer(serverId: Int) {
+        val server:Server = serverDao.getServer(serverId)
+
+        logger.info { "조회 완료 ${server}" }
+
+        if(server.previewImage != null)
+        {
+            val objectKey = server.previewImage
+            fileUploadUtil.deleteFile(objectKey)
+        }
+
         serverDao.deleteServer(serverId)
     }
 

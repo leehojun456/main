@@ -10,10 +10,19 @@
         SELECT * FROM mgsip_servers
     </select>
 
-    <insert id="addServer">
+
+    <select id="getServer">
+        SELECT * FROM mgsip_servers WHERE server_id = #{serverId}
+    </select>
+
+    <insert id="addServer" useGeneratedKeys="true" keyProperty="serverId">
         INSERT INTO mgsip_servers (server_name,server_ip,server_port,server_game,preview_image ,check_db)
         VALUES (#{serverName},#{serverIp},#{serverPort},#{serverGame},#{previewImage},#{checkDb})
     </insert>
+
+    <update id="updateServerImage">
+        UPDATE mgsip_servers SET preview_image=#{previewImage} WHERE server_id = #{serverId}
+    </update>
 
     <delete id="deleteServer">
         DELETE FROM mgsip_servers WHERE server_id = #{serverId}

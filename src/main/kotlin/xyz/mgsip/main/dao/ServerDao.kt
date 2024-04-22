@@ -7,4 +7,6 @@ interface ServerDao {
     abstract fun addServer(server: Server)
     abstract fun updateServer(server: Server)
     abstract fun deleteServer(serverId: Int)
+    abstract fun updateServerImage(server: Server)
+    abstract fun getServer(serverId: Int): Server
 }
